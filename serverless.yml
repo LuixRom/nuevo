@@ -1,0 +1,37 @@
+org: anthrom
+service: igp-scraper
+
+provider:
+  name: aws
+  ecr:
+    images:
+      scraper:
+        path: ./
+  iam:
+    role: arn:aws:iam::104861753178:role/LabRole
+  region: us-east-1
+
+functions:
+  scrap_table:
+    image:
+      name: scraper
+    timeout: 60
+    events:
+      - http:
+          path: /scrape/table
+          method: get
+          cors: true
+
+resources:
+  Resources:
+    TablaWebScrapping:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: TablaWebScrapping
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        BillingMode: PAY_PER_REQUEST
